@@ -7,7 +7,7 @@
 
 #include <borealis.hpp>
 
-bool cp(char *filein, const char *fileout) {
+bool cp(const char *filein, const char *fileout) {
     FILE *exein, *exeout;
     exein = fopen(filein, "rb");
     if (exein == NULL) {
@@ -19,6 +19,7 @@ bool cp(char *filein, const char *fileout) {
     if (exeout == NULL) {
         /* handle error */
         perror("file open for writing");
+        fclose(exein);
         return false;
     }
     size_t n, m;
@@ -31,10 +32,13 @@ bool cp(char *filein, const char *fileout) {
     while ((n > 0) && (n == m));
     if (m) {
         perror("copy");
+        fclose(exeout);
+        fclose(exein);
         return false;
     }
     if (fclose(exeout)) {
         perror("close output file");
+        fclose(exein);
         return false;
     }
     if (fclose(exein)) {
@@ -42,7 +46,7 @@ bool cp(char *filein, const char *fileout) {
         return false;
     }
     return true;
-} 
+}
 
 namespace cfg {
     Config::Config() {
