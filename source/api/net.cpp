@@ -17,7 +17,7 @@ namespace net {
     nlohmann::json downloadRequest(std::string url) {
         auto curl = curl_easy_init();
 
-        brls::Logger::debug("Requesting: " + url);
+        brls::Logger::debug("Requesting: {}", url);
         if(!curl) {
             brls::Logger::error("Failed to initialize curl");
             return nlohmann::json();
@@ -39,7 +39,7 @@ namespace net {
         nlohmann::json json;
 
         if(res != CURLE_OK) {
-            brls::Logger::error("Failed to perform request: " + std::string(curl_easy_strerror(res)));
+            brls::Logger::error("Failed to perform request: {}", std::string(curl_easy_strerror(res)));
         } else {
             json = nlohmann::json::parse(response);
         }
@@ -78,7 +78,7 @@ namespace net {
 
         auto res = curl_easy_perform(curl);
         if(res != CURLE_OK)
-            brls::Logger::error(curl_easy_strerror(res));
+            brls::Logger::error("curl error: {}", curl_easy_strerror(res));
         curl_easy_cleanup(curl);
     }
 
@@ -86,7 +86,7 @@ namespace net {
         stream->write(static_cast<char *>(ptr), size * nmemb);
         return size * nmemb;
     }
-    
+
     int downloadFileProgress(void* p, double dltotal, double dlnow, double ultotal, double ulnow) {
         //brls::Logger::debug("Downloaded: {} / {}", dlnow, dltotal);
         if(dltotal < 0.0) return 0;
@@ -124,7 +124,7 @@ namespace net {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
-        std::ofstream ofs(path, std::ios::binary); 
+        std::ofstream ofs(path, std::ios::binary);
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbackFile);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ofs);
@@ -132,8 +132,8 @@ namespace net {
         auto res = curl_easy_perform(curl);
 
         if(res != CURLE_OK) {
-            brls::Logger::error(curl_easy_strerror(res));
-            return; 
+            brls::Logger::error("curl error: {}", curl_easy_strerror(res));
+            return;
         }
 
         ofs.close();
@@ -141,8 +141,8 @@ namespace net {
         curl_easy_cleanup(curl);
 
         if(res != CURLE_OK) {
-            brls::Logger::error(curl_easy_strerror(res));
-            std::filesystem::remove(path); 
+            brls::Logger::error("curl error: {}", curl_easy_strerror(res));
+            std::filesystem::remove(path);
         }
     }
 

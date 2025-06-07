@@ -22,21 +22,24 @@ void Game::searchGame() {
     curl_easy_cleanup(curl);
 
     cfg::Config config;
-    std::string endpoint = config.getStrictSearch() ?
-        "https://gamebanana.com/apiv11/Util/Game/NameMatch?_sName={}" :
-        "https://gamebanana.com/apiv11/Util/Search/Results?_sModelName=Game&_sOrder=best_match&_sSearchString={}%20%28Switch%29";
 
     try {
-        json = net::downloadRequest(fmt::format(endpoint, title_url));
+        std::string formatted_url;
+        if (config.getStrictSearch()) {
+            formatted_url = fmt::format("https://gamebanana.com/apiv11/Util/Game/NameMatch?_sName={}", title_url);
+        } else {
+            formatted_url = fmt::format("https://gamebanana.com/apiv11/Util/Search/Results?_sModelName=Game&_sOrder=best_match&_sSearchString={}%20%28Switch%29", title_url);
+        }
+        json = net::downloadRequest(formatted_url);
     } catch (const std::exception& e) {
-        brls::Logger::error("Failed to search for game: " + title + " - " + e.what());
+        brls::Logger::error("Failed to search for game: {} - {}", title, e.what());
         gamebananaID = -1;
         return;
     }
-    
-    
+
+
     if(json.empty()) {
-        brls::Logger::error("Failed to search for game: " + title);
+        brls::Logger::error("Failed to search for game: {}", title);
     }
 }
 
@@ -64,7 +67,8 @@ void Game::parseJson() {
 }
 
 void Game::loadCategories() {
-    json = net::downloadRequest(fmt::format("https://gamebanana.com/apiv11/Game/{}/ProfilePage", gamebananaID));
+    std::string categories_url = fmt::format("https://gamebanana.com/apiv11/Game/{}/ProfilePage", gamebananaID);
+    json = net::downloadRequest(categories_url);
 
     if(json.empty() || json.find("_aModRootCategories") == json.end()) {
         brls::Logger::error("Failed to load tags for game: {}", title);

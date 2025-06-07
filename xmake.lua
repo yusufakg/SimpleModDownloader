@@ -7,7 +7,7 @@ includes("toolchain/*.lua")
 add_defines(
     'BRLS_RESOURCES="romfs:/"',
     "YG_ENABLE_EVENTS",
-    "STBI_NO_THREAD_LOCALS", 
+    "STBI_NO_THREAD_LOCALS",
     "BOREALIS_USE_DEKO3D"
 )
 
@@ -17,15 +17,15 @@ add_requires("borealis", {repo = "switch-repo"}, "deko3d", "libcurl", "libarchiv
 
 target("SimpleModDownloader")
     set_kind("binary")
-    if not is_plat("cross") then 
+    if not is_plat("cross") then
         return
     end
 
     set_arch("aarch64")
     add_rules("switch")
     set_toolchains("devkita64")
-    set_languages("c++17")
-    
+    set_languages("c++23")
+
     set_values("switch.name", "SimpleModDownloader")
     set_values("switch.author", "PoloNX")
     set_values("switch.version", "2.1.0")
